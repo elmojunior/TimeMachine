@@ -735,12 +735,34 @@
 
     /* WEEK VIEW */
     .cal-week {
+      display: flex;
+      flex-direction: column;
+      background: var(--c-surface);
+      border-top: 1px solid var(--c-border);
+      height: calc(100vh - 190px);
+      min-height: 450px;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .cal-week-header {
       display: grid;
       grid-template-columns: 60px repeat(7, 1fr);
-      border-top: 1px solid var(--c-border);
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--c-border);
       background: var(--c-surface);
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    .cal-week-scrollable {
+      display: grid;
+      grid-template-columns: 60px repeat(7, 1fr);
+      flex: 1;
+      overflow-y: auto;
       overflow-x: auto;
-      user-select: none;
+      min-height: 0;
+      position: relative;
     }
 
     .cal-week.dragging {
@@ -748,16 +770,15 @@
     }
 
     .cal-week .day-head {
-      border-bottom: 1px solid var(--c-border);
       border-left: 1px solid var(--c-border);
       padding: 10px 12px;
       background: var(--c-surface);
-      position: sticky;
-      top: 0;
-      z-index: 2;
+      min-width: 0;
     }
 
-    .cal-week .day-head:first-child {
+    .cal-week .day-head:first-child,
+    .cal-week .gutter:first-child,
+    .cal-week .untimed-strip:first-child {
       border-left: none;
     }
 
@@ -783,12 +804,20 @@
       color: var(--c-primary-strong);
     }
 
+    .cal-week .day-head.is-today {
+      background: var(--c-primary-softer);
+    }
+
     .cal-week .day-head.is-weekend {
       background: var(--c-surface-2);
     }
 
     .cal-week .gutter {
       background: var(--c-surface);
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      border-right: 1px solid var(--c-border);
     }
 
     .cal-week .gutter .hour {
@@ -804,6 +833,7 @@
     .cal-week .day-col {
       position: relative;
       border-left: 1px solid var(--c-border);
+      min-width: 100px; /* Ensure columns don't get too squished */
     }
 
     .cal-week .day-col .hour-cell {
@@ -821,14 +851,15 @@
     }
 
     .untimed-strip {
-      border-bottom: 1px solid var(--c-border);
+      border-left: 1px solid var(--c-border);
       padding: 6px;
-      min-height: 32px;
+      min-height: 42px;
       display: flex;
       flex-direction: column;
       gap: 4px;
       background: var(--c-cell-hover);
       cursor: cell;
+      min-width: 0;
     }
 
     .untimed-strip:empty::before {
@@ -3139,7 +3170,7 @@
 
     function renderWeekGrid(range) {
       const days = []; for (let i = 0; i < 7; i++) days.push(addDays(range.start, i));
-      const headRow = ['<div class="day-head" style="border-left:none;background:transparent"></div>']
+      const headRow = ['<div class="gutter" style="border-right:none"></div>']
         .concat(days.map(d => {
           const totalDay = state.timeEntries.filter(e => e.date === isoDate(d))
             .reduce((s, e) => s + (e.durationMinutes || 0), 0);
@@ -3150,7 +3181,7 @@
       </div>`;
         })).join('');
 
-      const untimedRow = ['<div class="gutter" style="border-left:none"></div>']
+      const untimedRow = ['<div class="gutter" style="border-right:none"></div>']
         .concat(days.map(d => {
           const dateStr = isoDate(d);
           const untimed = state.timeEntries.filter(e => e.date === dateStr && !e.startTime);
@@ -3189,8 +3220,6 @@
           const lay = layout[e.id] || { col: 0, cols: 1 };
           const widthPct = 100 / lay.cols;
           const leftPct = lay.col * widthPct;
-          // Dynamic line-clamp based on block height
-          // Title (~16px) + Meta (~14px) + Time/Padding (~26px) = ~56px
           const availableForNote = height - 54;
           const maxLines = Math.max(1, Math.floor(availableForNote / 14));
           const showMeta = height > 42;
@@ -3207,7 +3236,17 @@
         return `<div class="day-col ${isWeekend(d) ? 'is-weekend' : ''}" data-day="${dateStr}">${cells}${blocks}</div>`;
       }).join('');
 
-      return `<div class="cal-week" id="weekGrid">${headRow}${untimedRow}${gutterCells}${dayCols}</div>`;
+      return `
+      <div class="cal-week" id="weekGrid">
+        <div class="cal-week-header" id="weekGridHead">
+          ${headRow}
+          ${untimedRow}
+        </div>
+        <div class="cal-week-scrollable" id="weekGridBody">
+          ${gutterCells}
+          ${dayCols}
+        </div>
+      </div>`;
     }
 
     function layoutOverlaps(entries) {
@@ -3249,6 +3288,14 @@
     }
 
     function attachCalendarEvents() {
+      const head = document.getElementById('weekGridHead');
+      const body = document.getElementById('weekGridBody');
+      if (head && body) {
+        body.addEventListener('scroll', () => {
+          head.scrollLeft = body.scrollLeft;
+        });
+      }
+
       document.querySelectorAll('.cal-week .hour-cell').forEach(el => {
         el.addEventListener('click', (ev) => {
           if (didDragMove) { didDragMove = false; return; }
