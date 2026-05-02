@@ -3097,8 +3097,8 @@
        CALENDAR VIEW
        ============================================================ */
     const HOUR_HEIGHT = 56;
-    const DAY_START_HOUR = 6;
-    const DAY_END_HOUR = 22;
+    const DAY_START_HOUR = 0;
+    const DAY_END_HOUR = 24;
     const SNAP_MINUTES = 30;
 
     function renderCalendar(root) {
@@ -3141,6 +3141,9 @@
       if (view.mode === 'week') {
         root.innerHTML = `<div class="card calendar-card">${summary}${renderWeekGrid(range)}</div>`;
         attachCalendarEvents();
+        // Initial scroll to 08:00
+        const body = document.getElementById('weekGridBody');
+        if (body) body.scrollTop = 8 * HOUR_HEIGHT;
       } else {
         root.innerHTML = `<div class="card calendar-card">${summary}${renderMonthGrid()}</div>`;
         attachMonthEvents();
