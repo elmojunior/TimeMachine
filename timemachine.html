@@ -35,7 +35,8 @@
   <meta name="apple-mobile-web-app-title" content="TimeMachine">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <!-- PWA: iOS home-screen icon (SVG data URI) -->
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%237c4dff'/%3E%3Cstop offset='100%25' stop-color='%23c84df0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='256' cy='256' r='256' fill='url(%23g)'/%3E%3Ccircle cx='256' cy='256' r='144' fill='none' stroke='white' stroke-width='22'/%3E%3Cpath d='M256 144v112l60 40' stroke='white' stroke-width='22' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%237c4dff'/%3E%3Cstop offset='100%25' stop-color='%23c84df0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='256' cy='256' r='256' fill='url(%23g)'/%3E%3Ccircle cx='256' cy='256' r='144' fill='none' stroke='white' stroke-width='22'/%3E%3Cpath d='M256 144v112l60 40' stroke='white' stroke-width='22' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <style>
     *,
     *::before,
@@ -152,17 +153,8 @@
     }
 
     @media (prefers-color-scheme: dark) {
-      :root[data-theme="auto"] .btn {
-        color: #1f1d28;
-      }
-
       :root[data-theme="auto"] .btn-icon-round {
-        color: #1f1d28;
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-      }
-
-      :root[data-theme="auto"] .pill-tabs button.active {
-        color: #1f1d28;
       }
     }
 
@@ -380,10 +372,6 @@
       box-shadow: var(--shadow-sm);
     }
 
-    :root[data-theme="dark"] .btn {
-      color: #1f1d28;
-    }
-
     .btn:hover {
       filter: brightness(1.08);
     }
@@ -427,11 +415,6 @@
       color: #fff;
     }
 
-    :root[data-theme="dark"] .btn-danger,
-    :root[data-theme="auto"] .btn-danger {
-      color: #fff;
-    }
-
     .btn-icon-round {
       width: 40px;
       height: 40px;
@@ -446,7 +429,6 @@
     }
 
     :root[data-theme="dark"] .btn-icon-round {
-      color: #1f1d28;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
     }
 
@@ -1684,10 +1666,6 @@
       border-color: var(--c-primary);
     }
 
-    :root[data-theme="dark"] .pill-tabs button.active {
-      color: #1f1d28;
-    }
-
     /* ===== Reports ===== */
     .stats-grid {
       display: grid;
@@ -2636,11 +2614,11 @@
     /* ============================================================
        STATE & PERSISTENCE  (IndexedDB)
        ============================================================ */
-    const IDB_NAME    = 'timemachine_db';
+    const IDB_NAME = 'timemachine_db';
     const IDB_VERSION = 1;
-    const IDB_STORE   = 'kv';           // generic key-value store
-    const STATE_KEY   = 'state_v2';     // key used inside the store
-    const THEME_KEY   = 'timemachine_theme';        // still in localStorage (tiny string)
+    const IDB_STORE = 'kv';           // generic key-value store
+    const STATE_KEY = 'state_v2';     // key used inside the store
+    const THEME_KEY = 'timemachine_theme';        // still in localStorage (tiny string)
     const FILTERS_KEY = 'timemachine_filters_v1';   // still in localStorage (tiny string)
     const LS_MIGRATE_KEY = 'timemachine_data_v2';   // old localStorage key to migrate from
     const PALETTE = ['#7c4dff', '#5e9bff', '#2dba6b', '#f1a836', '#e34c4c', '#e91e63', '#a259ff', '#00bcd4', '#ff7043', '#9ccc65', '#26a69a', '#7986cb'];
@@ -2659,25 +2637,25 @@
           }
         };
         req.onsuccess = (e) => resolve(e.target.result);
-        req.onerror   = (e) => reject(e.target.error);
+        req.onerror = (e) => reject(e.target.error);
       });
     }
 
     function idbGet(db, key) {
       return new Promise((resolve, reject) => {
-        const tx  = db.transaction(IDB_STORE, 'readonly');
+        const tx = db.transaction(IDB_STORE, 'readonly');
         const req = tx.objectStore(IDB_STORE).get(key);
         req.onsuccess = () => resolve(req.result);
-        req.onerror   = () => reject(req.error);
+        req.onerror = () => reject(req.error);
       });
     }
 
     function idbSet(db, key, value) {
       return new Promise((resolve, reject) => {
-        const tx  = db.transaction(IDB_STORE, 'readwrite');
+        const tx = db.transaction(IDB_STORE, 'readwrite');
         const req = tx.objectStore(IDB_STORE).put(value, key);
         req.onsuccess = () => resolve();
-        req.onerror   = () => reject(req.error);
+        req.onerror = () => reject(req.error);
       });
     }
 
@@ -5370,7 +5348,7 @@
     (async function setupPWA() {
       // 1. Base SVG for regular icons
       const baseSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c4dff"/><stop offset="100%" stop-color="#c84df0"/></linearGradient></defs><circle cx="256" cy="256" r="256" fill="url(#g)"/><circle cx="256" cy="256" r="144" fill="none" stroke="white" stroke-width="22"/><path d="M256 144v112l60 40" stroke="white" stroke-width="22" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-      
+
       // 2. Maskable SVG (with safe-zone padding)
       const maskableSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c4dff"/><stop offset="100%" stop-color="#c84df0"/></linearGradient></defs><rect width="512" height="512" fill="#15131e"/><circle cx="256" cy="256" r="190" fill="url(#g)"/><circle cx="256" cy="256" r="110" fill="none" stroke="white" stroke-width="18"/><path d="M256 160v96l50 30" stroke="white" stroke-width="18" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
