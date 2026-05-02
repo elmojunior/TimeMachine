@@ -753,6 +753,7 @@
       background: var(--c-surface);
       z-index: 10;
       overflow: hidden;
+      scrollbar-gutter: stable;
     }
 
     .cal-week-scrollable {
@@ -763,6 +764,7 @@
       overflow-x: auto;
       min-height: 0;
       position: relative;
+      scrollbar-gutter: stable;
     }
 
     .cal-week.dragging {
@@ -774,6 +776,7 @@
       padding: 10px 12px;
       background: var(--c-surface);
       min-width: 0;
+      position: relative;
     }
 
     .cal-week .day-head:first-child,
@@ -833,7 +836,8 @@
     .cal-week .day-col {
       position: relative;
       border-left: 1px solid var(--c-border);
-      min-width: 100px; /* Ensure columns don't get too squished */
+      min-width: 100px;
+      /* Ensure columns don't get too squished */
     }
 
     .cal-week .day-col .hour-cell {
@@ -860,12 +864,26 @@
       background: var(--c-cell-hover);
       cursor: cell;
       min-width: 0;
+      position: relative;
     }
 
     .untimed-strip:empty::before {
       content: 'sem horário';
       color: var(--c-muted-2);
       font-size: 10px;
+    }
+
+    /* Extension to fill the scrollbar gutter in the header with the correct color */
+    .cal-week-header > div:nth-child(8n)::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 100%;
+      width: 30px;
+      background: inherit;
+      pointer-events: none;
+      z-index: 1;
     }
 
     .untimed-chip {
